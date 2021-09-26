@@ -7,6 +7,10 @@ use App\Http\Controllers\Controller;
 
 use App\Profile;
 
+use App\ProfilesHistory;
+
+use Carbon\Carbon;
+
 class ProfileController extends Controller
 {
     public function add()
@@ -57,11 +61,15 @@ class ProfileController extends Controller
         $this->validate($request, Profile::$rules);
         
         $profile = Profile::find($request->id);
-        
         $profile_form = $request->all();
         unset($profile_form['_tpken']);
         
         $profile->fill($profile_form)->save();
+        
+        $history = new ProfilesHistory;
+        $history->profile_id = $profile->id;
+        $history->edited_at = Carbon::now();
+        $history->save();
         
         return redirect('admin/profile/');
     }
